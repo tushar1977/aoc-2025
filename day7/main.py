@@ -4,43 +4,33 @@ with open("t.txt", "r") as f:
 
 n = len(grid)
 m = len(grid[0])
-
-rows = n
-cols = m
-dp = [[-1 for _ in range(cols)] for _ in range(rows)]
-
+dp = [[-1 for _ in range(m)] for _ in range(n)]
 def isValid(r, c):
-    if r < n and r >= 0 and c < m and c >= 0:
-        return True
-    return False
+    return 0 <= r < n and 0 <= c < m
 
+visited = set()
 def part1(i, j):
-    l = [(i, j)]
     ans = 0
-    visited = set()
+    if not isValid(i, j): return 0
+    if (i,j) in visited: return 0
 
-    while l:
-        i, j = l.pop()
+    visited.add((i,j))
 
-        if not isValid(i, j):
-            continue
-        if (i, j) in visited:
-            continue
-        visited.add((i, j))
-
-        if grid[i][j] == "^":
-            ans += 1
-
-            l.append((i, j - 1))
-            l.append((i, j + 1))
-        else:
-            l.append((i + 1, j))
+    if(grid[i][j] == '^'):
+        ans += 1
+        ans += part1(i, j-1)
+        ans += part1(i, j+1)
+    else:
+        ans += part1(i+1, j)
     return ans
 
+visited_p2 = set()
 def part2(i, j):
     if i == n: return 1
+    visited_p2.add((i,j))
     if not isValid(i, j): return 0
     if dp[i][j] != -1: return dp[i][j]
+
 
     if grid[i][j] == "^":
         dp[i][j] = part2(i + 1, j - 1) + part2(i + 1, j + 1)
@@ -48,13 +38,16 @@ def part2(i, j):
         dp[i][j] = part2(i + 1, j)
     return dp[i][j]
 
-ans2 = 0
+
 ans = 0
+ans2 = 0
+
 for i in range(n):
     for j in range(m):
         if grid[i][j] == "S":
             ans = part1(i, j)
             ans2 = part2(i, j)
             break
+
 print(ans)
 print(ans2)
